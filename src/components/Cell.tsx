@@ -13,7 +13,8 @@ interface CellProps {
 }
 
 export const Cell = ({ cell, x, y }: CellProps) => {
-  const { toggleSwitch, status } = useGameStore();
+  const toggleSwitch = useGameStore(s => s.toggleSwitch);
+  const status = useGameStore(s => s.status);
 
   const handleClick = () => {
     if (cell.type === 'switch' && status === 'playing') {

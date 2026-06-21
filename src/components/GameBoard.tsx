@@ -4,7 +4,8 @@ import { Cart } from './Cart';
 import { useGameStore } from '../store/gameStore';
 
 export const GameBoard = () => {
-  const { grid, carts } = useGameStore();
+  const grid = useGameStore(s => s.grid);
+  const carts = useGameStore(s => s.carts);
   const boardRef = useRef<HTMLDivElement>(null);
   const [cellSize, setCellSize] = useState(80);
 

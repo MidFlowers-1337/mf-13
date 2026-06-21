@@ -4,15 +4,13 @@ import { levels } from '../data/levels';
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
 
 export const ControlButtons = () => {
-  const {
-    status,
-    currentLevel,
-    startGame,
-    pauseGame,
-    resumeGame,
-    restartGame,
-    nextLevel
-  } = useGameStore();
+  const status = useGameStore(s => s.status);
+  const currentLevel = useGameStore(s => s.currentLevel);
+  const startGame = useGameStore(s => s.startGame);
+  const pauseGame = useGameStore(s => s.pauseGame);
+  const resumeGame = useGameStore(s => s.resumeGame);
+  const restartGame = useGameStore(s => s.restartGame);
+  const nextLevel = useGameStore(s => s.nextLevel);
 
   const hasNextLevel = currentLevel < levels.length;
 

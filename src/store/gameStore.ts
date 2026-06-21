@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createStore, useStore } from 'zustand';
 import type { GameState, Cart, Cell, GameStatus } from '../types/game';
 import { levels } from '../data/levels';
 import { cloneGrid } from '../utils/gameLogic';
@@ -24,6 +24,8 @@ interface GameActions {
   loadHighScore: () => void;
 }
 
+export type GameStore = GameState & GameActions;
+
 const getInitialState = (): GameState => {
   const savedHighScore = localStorage.getItem('minecart_highscore');
   return {
@@ -40,7 +42,7 @@ const getInitialState = (): GameState => {
   };
 };
 
-export const useGameStore = create<GameState & GameActions>((set, get) => ({
+export const gameStore = createStore<GameStore>((set, get) => ({
   ...getInitialState(),
 
   startGame: (levelId: number) => {
@@ -188,3 +190,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
   }
 }));
+
+export const useGameStore = <T,>(selector: (state: GameStore) => T): T => {
+  return useStore(gameStore, selector);
+};

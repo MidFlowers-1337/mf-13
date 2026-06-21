@@ -10,7 +10,7 @@ import { Train } from 'lucide-react';
 
 export default function Home() {
   useGameEngine();
-  const { loadHighScore } = useGameStore();
+  const loadHighScore = useGameStore(s => s.loadHighScore);
 
   useEffect(() => {
     loadHighScore();

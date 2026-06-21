@@ -4,14 +4,12 @@ import { Trophy, XCircle, RotateCcw, SkipForward } from 'lucide-react';
 import { levels } from '../data/levels';
 
 export const StatusModal = () => {
-  const {
-    status,
-    score,
-    currentLevel,
-    restartGame,
-    nextLevel,
-    startGame
-  } = useGameStore();
+  const status = useGameStore(s => s.status);
+  const score = useGameStore(s => s.score);
+  const currentLevel = useGameStore(s => s.currentLevel);
+  const restartGame = useGameStore(s => s.restartGame);
+  const nextLevel = useGameStore(s => s.nextLevel);
+  const startGame = useGameStore(s => s.startGame);
 
   const hasNextLevel = currentLevel < levels.length;
 

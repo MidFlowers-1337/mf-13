@@ -8,7 +8,43 @@ const createEmptyGrid = (): Cell[][] => {
 
 const createLevel1Grid = (): Cell[][] => {
   const grid = createEmptyGrid();
-  
+
+  grid[0][0] = { type: 'entrance', entranceDirection: 'right' };
+  grid[0][1] = { type: 'track' };
+  grid[0][2] = { type: 'track' };
+  grid[0][3] = {
+    type: 'switch',
+    switchConfig: {
+      direction1: 'right',
+      direction2: 'down',
+      current: 1
+    }
+  };
+  grid[0][4] = { type: 'track' };
+  grid[0][5] = { type: 'warehouse', color: 'red' };
+
+  grid[1][3] = { type: 'track' };
+  grid[2][3] = {
+    type: 'switch',
+    switchConfig: {
+      direction1: 'right',
+      direction2: 'down',
+      current: 1
+    }
+  };
+  grid[2][4] = { type: 'track' };
+  grid[2][5] = { type: 'warehouse', color: 'blue' };
+
+  grid[3][3] = { type: 'track' };
+  grid[4][3] = { type: 'track' };
+  grid[5][3] = { type: 'warehouse', color: 'yellow' };
+
+  return grid;
+};
+
+const createLevel2Grid = (): Cell[][] => {
+  const grid = createEmptyGrid();
+
   grid[0][0] = { type: 'entrance', entranceDirection: 'right' };
   grid[0][1] = { type: 'track' };
   grid[0][2] = { type: 'track' };
@@ -22,76 +58,28 @@ const createLevel1Grid = (): Cell[][] => {
   };
   grid[0][4] = { type: 'track' };
   grid[0][5] = { type: 'warehouse', color: 'red' };
-  
+
   grid[1][3] = { type: 'track' };
+
+  grid[2][0] = { type: 'entrance', entranceDirection: 'right' };
+  grid[2][1] = { type: 'track' };
+  grid[2][2] = { type: 'track' };
   grid[2][3] = {
     type: 'switch',
     switchConfig: {
       direction1: 'down',
       direction2: 'right',
-      current: 0
+      current: 1
     }
   };
   grid[2][4] = { type: 'track' };
   grid[2][5] = { type: 'warehouse', color: 'blue' };
-  
-  grid[3][3] = { type: 'track' };
-  grid[4][3] = { type: 'track' };
-  grid[5][3] = { type: 'warehouse', color: 'yellow' };
-  
-  return grid;
-};
 
-const createLevel2Grid = (): Cell[][] => {
-  const grid = createEmptyGrid();
-  
-  grid[0][0] = { type: 'entrance', entranceDirection: 'right' };
-  grid[0][1] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'down',
-      current: 0
-    }
-  };
-  grid[0][2] = { type: 'track' };
-  grid[0][3] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'down',
-      current: 0
-    }
-  };
-  grid[0][4] = { type: 'track' };
-  grid[0][5] = { type: 'warehouse', color: 'red' };
-  
-  grid[1][1] = { type: 'track' };
-  grid[1][3] = { type: 'track' };
-  
-  grid[2][0] = { type: 'entrance', entranceDirection: 'right' };
-  grid[2][1] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'up',
-      current: 0
-    }
-  };
-  grid[2][2] = { type: 'track' };
-  grid[2][3] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'up',
-      direction2: 'right',
-      current: 0
-    }
-  };
-  grid[2][4] = { type: 'track' };
-  grid[2][5] = { type: 'warehouse', color: 'blue' };
-  
   grid[3][3] = { type: 'track' };
-  
+
+  grid[4][0] = { type: 'entrance', entranceDirection: 'right' };
+  grid[4][1] = { type: 'track' };
+  grid[4][2] = { type: 'track' };
   grid[4][3] = {
     type: 'switch',
     switchConfig: {
@@ -102,25 +90,15 @@ const createLevel2Grid = (): Cell[][] => {
   };
   grid[4][4] = { type: 'track' };
   grid[4][5] = { type: 'warehouse', color: 'yellow' };
-  
-  grid[5][0] = { type: 'entrance', entranceDirection: 'right' };
-  grid[5][1] = { type: 'track' };
-  grid[5][2] = { type: 'track' };
-  grid[5][3] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'up',
-      direction2: 'right',
-      current: 0
-    }
-  };
-  
+
+  grid[5][3] = { type: 'track' };
+
   return grid;
 };
 
 const createLevel3Grid = (): Cell[][] => {
   const grid = createEmptyGrid();
-  
+
   grid[0][0] = { type: 'entrance', entranceDirection: 'right' };
   grid[0][1] = { type: 'track' };
   grid[0][2] = {
@@ -132,33 +110,18 @@ const createLevel3Grid = (): Cell[][] => {
     }
   };
   grid[0][3] = { type: 'track' };
-  grid[0][4] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'down',
-      current: 0
-    }
-  };
+  grid[0][4] = { type: 'track' };
   grid[0][5] = { type: 'warehouse', color: 'red' };
-  
+
   grid[1][2] = { type: 'track' };
-  grid[1][4] = { type: 'track' };
-  
+
   grid[2][0] = { type: 'entrance', entranceDirection: 'right' };
-  grid[2][1] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'up',
-      current: 0
-    }
-  };
+  grid[2][1] = { type: 'track' };
   grid[2][2] = {
     type: 'switch',
     switchConfig: {
       direction1: 'up',
-      direction2: 'down',
+      direction2: 'right',
       current: 0
     }
   };
@@ -166,33 +129,19 @@ const createLevel3Grid = (): Cell[][] => {
     type: 'switch',
     switchConfig: {
       direction1: 'right',
-      direction2: 'up',
-      current: 0
-    }
-  };
-  grid[2][4] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'up',
       direction2: 'down',
       current: 0
     }
   };
+  grid[2][4] = { type: 'track' };
   grid[2][5] = { type: 'warehouse', color: 'blue' };
-  
-  grid[3][2] = { type: 'track' };
-  grid[3][4] = { type: 'track' };
-  
+
+  grid[3][3] = { type: 'track' };
+
   grid[4][0] = { type: 'entrance', entranceDirection: 'right' };
-  grid[4][1] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'right',
-      direction2: 'up',
-      current: 0
-    }
-  };
-  grid[4][2] = {
+  grid[4][1] = { type: 'track' };
+  grid[4][2] = { type: 'track' };
+  grid[4][3] = {
     type: 'switch',
     switchConfig: {
       direction1: 'up',
@@ -200,17 +149,9 @@ const createLevel3Grid = (): Cell[][] => {
       current: 0
     }
   };
-  grid[4][3] = { type: 'track' };
-  grid[4][4] = {
-    type: 'switch',
-    switchConfig: {
-      direction1: 'up',
-      direction2: 'right',
-      current: 0
-    }
-  };
+  grid[4][4] = { type: 'track' };
   grid[4][5] = { type: 'warehouse', color: 'yellow' };
-  
+
   grid[5][0] = { type: 'entrance', entranceDirection: 'right' };
   grid[5][1] = { type: 'track' };
   grid[5][2] = { type: 'track' };
@@ -222,7 +163,16 @@ const createLevel3Grid = (): Cell[][] => {
       current: 0
     }
   };
-  
+  grid[5][4] = { type: 'track' };
+  grid[5][5] = {
+    type: 'switch',
+    switchConfig: {
+      direction1: 'up',
+      direction2: 'left',
+      current: 0
+    }
+  };
+
   return grid;
 };
 
@@ -240,11 +190,11 @@ export const levels: Level[] = [
       { x: 5, y: 2, color: 'blue' },
       { x: 3, y: 5, color: 'yellow' }
     ],
-    spawnInterval: 3000,
-    moveInterval: 800,
-    targetScore: 100,
-    targetDeliveries: 10,
-    timeLimit: 120
+    spawnInterval: 6000,
+    moveInterval: 1200,
+    targetScore: 60,
+    targetDeliveries: 6,
+    timeLimit: 180
   },
   {
     id: 2,
@@ -254,18 +204,18 @@ export const levels: Level[] = [
     entrances: [
       { x: 0, y: 0, direction: 'right' },
       { x: 0, y: 2, direction: 'right' },
-      { x: 0, y: 5, direction: 'right' }
+      { x: 0, y: 4, direction: 'right' }
     ],
     warehouses: [
       { x: 5, y: 0, color: 'red' },
       { x: 5, y: 2, color: 'blue' },
       { x: 5, y: 4, color: 'yellow' }
     ],
-    spawnInterval: 2000,
-    moveInterval: 600,
-    targetScore: 200,
-    targetDeliveries: 20,
-    timeLimit: 150
+    spawnInterval: 5000,
+    moveInterval: 1000,
+    targetScore: 100,
+    targetDeliveries: 10,
+    timeLimit: 240
   },
   {
     id: 3,
@@ -283,10 +233,10 @@ export const levels: Level[] = [
       { x: 5, y: 2, color: 'blue' },
       { x: 5, y: 4, color: 'yellow' }
     ],
-    spawnInterval: 1500,
-    moveInterval: 500,
-    targetScore: 300,
-    targetDeliveries: 30,
-    timeLimit: 180
+    spawnInterval: 4000,
+    moveInterval: 800,
+    targetScore: 140,
+    targetDeliveries: 14,
+    timeLimit: 300
   }
 ];

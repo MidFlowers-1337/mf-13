@@ -5,15 +5,13 @@ import { formatTime } from '../utils/gameLogic';
 import { Clock, Trophy, Target, Gem, Timer } from 'lucide-react';
 
 export const InfoPanel = () => {
-  const {
-    currentLevel,
-    score,
-    highScore,
-    deliveries,
-    timeRemaining,
-    message,
-    messageType
-  } = useGameStore();
+  const currentLevel = useGameStore(s => s.currentLevel);
+  const score = useGameStore(s => s.score);
+  const highScore = useGameStore(s => s.highScore);
+  const deliveries = useGameStore(s => s.deliveries);
+  const timeRemaining = useGameStore(s => s.timeRemaining);
+  const message = useGameStore(s => s.message);
+  const messageType = useGameStore(s => s.messageType);
 
   const level = levels.find(l => l.id === currentLevel) || levels[0];
 
