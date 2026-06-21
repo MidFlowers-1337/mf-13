@@ -1,57 +1,215 @@
-# React + TypeScript + Vite
+# 🚂 矿车调度站 Minecart Dispatch Station
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一款基于 React + TypeScript + Vite 的策略调度小游戏。玩家通过切换轨道道岔，引导不同颜色的矿车将矿石送到对应颜色的仓库。
 
-Currently, two official plugins are available:
+## ✨ 游戏特色
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 **直观操作**：点击道岔格子切换方向，矿车自动沿轨道运行
+- 🎨 **三种颜色**：红🔴、蓝🔵、黄🟡 矿石必须送入对应颜色仓库
+- 🧩 **3 个关卡**：难度递进的轨道布局，从新手训练到调度大师
+- 💡 **多种辅助模式**：提示模式、慢速模式、目的地标记
+- 📊 **详细反馈**：失败精确到矿车编号、颜色、位置和原因
+- 📜 **操作日志**：实时记录最近发生的所有事件
+- 🏆 **进度保存**：关卡解锁、最高分、最快通关时间自动存档
+- 📱 **移动端友好**：适配手机屏幕和触摸操作
 
-## Expanding the ESLint configuration
+## 🎮 游戏玩法
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 基本规则
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. 矿车会从绿色「入口」随机颜色自动驶出
+2. 矿车沿轨道自动移动，遇到「道岔」时按其当前方向转向
+3. **点击道岔格子**可切换其方向（右下角箭头指示当前方向）
+4. 将矿车送入**相同颜色**的仓库即可得分（每车 +10 分）
+5. 达到目标配送数或分数即可通关
+
+### 失败条件
+
+| 失败类型 | 说明 |
+|---------|------|
+| ❌ 送错仓库 | 矿车颜色与进入的仓库颜色不匹配 |
+| 💥 矿车相撞 | 两辆矿车在同一格相撞 |
+| 🛤️ 矿车出轨 | 矿车驶出轨道边界或进入空格 |
+| ⏰ 时间耗尽 | 时间到了仍未完成目标 |
+
+### 辅助功能
+
+| 功能 | 说明 |
+|-----|------|
+| 💡 **提示模式** | 矿车快到道岔时，若当前设置会导致送错仓库，则自动高亮该道岔 |
+| 🐌 **慢速模式** | 矿车移动速度和生成间隔减半，适合新手练习 |
+| 👁️ **目的地标记** | 每辆矿车右上角显示其目标颜色的小图标 |
+
+## 🏗️ 项目结构
+
+```
+src/
+├── components/          # UI 组件
+│   ├── GameBoard.tsx    # 游戏棋盘（含暂停遮罩）
+│   ├── Cell.tsx         # 单个格子（轨道/道岔/入口/仓库）
+│   ├── Cart.tsx         # 矿车（含目的地标记）
+│   ├── InfoPanel.tsx    # 信息面板（时间/分数/进度等）
+│   ├── ControlButtons.tsx  # 开始按钮 + 游戏说明
+│   ├── EventLogPanel.tsx   # 设置 + 关卡选择 + 操作日志 + 控制按钮
+│   └── StatusModal.tsx     # 通关/失败弹窗（含详细原因）
+├── data/
+│   └── levels.ts        # 3 个关卡的布局定义
+├── hooks/
+│   └── useGameEngine.ts # 游戏核心逻辑引擎（矿车生成/移动/碰撞/胜负判定）
+├── store/
+│   └── gameStore.ts     # Zustand 全局状态管理
+├── types/
+│   └── game.ts          # 全部 TypeScript 类型定义
+├── utils/
+│   └── gameLogic.ts     # 纯函数工具（位置、方向、颜色等）
+├── pages/
+│   └── Home.tsx         # 游戏主页
+└── index.css            # 全局样式 + Tailwind + 动画
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 快速开始
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 环境要求
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Node.js ≥ 18
+- npm ≥ 9（或使用 pnpm / yarn）
+
+### 安装依赖
+
+```bash
+npm install
 ```
+
+### 开发模式（热更新）
+
+```bash
+npm run dev
+```
+
+默认启动在 `http://localhost:5173`
+
+### 类型检查
+
+```bash
+npm run check
+```
+
+### 代码 Lint
+
+```bash
+npm run lint
+```
+
+### 生产构建
+
+```bash
+npm run build
+```
+
+构建产物在 `dist/` 目录
+
+### 预览构建结果
+
+```bash
+npm run preview
+```
+
+## 🧪 验证说明
+
+### 已验证的命令
+
+所有命令均在 Windows PowerShell 环境中执行并通过：
+
+| 命令 | 说明 | 结果 |
+|-----|------|------|
+| `npm install` | 安装依赖 | ✅ 成功 |
+| `npm run check` | TypeScript 类型检查 (`tsc -b --noEmit`) | ✅ 无错误 |
+| `npm run lint` | ESLint 代码检查 | ✅ 无错误 |
+| `npm run build` | 生产构建 (`tsc -b && vite build`) | ✅ 成功 |
+| `npm run dev` | 启动开发服务器 | ✅ 正常运行于 5173 端口 |
+
+### 已验证的浏览器操作
+
+使用内置浏览器实际测试以下功能均正常：
+
+1. **主界面**
+   - 标题、游戏说明、关卡选择（带解锁状态）正确显示
+   - 三个关卡按钮显示历史最高分和最快通关时间
+
+2. **开始游戏**
+   - 点击「开始游戏」或关卡按钮进入游戏
+   - 矿车从入口自动驶出，右上角显示目标颜色标记
+   - 信息面板显示剩余时间、已用时间、分数、配送数
+
+3. **核心操作**
+   - 点击道岔格子：方向切换，右下角箭头更新，日志中记录操作
+   - 矿车移动：平滑动画，沿正确方向前进
+   - 成功送达：弹出 +10 分消息，日志有记录
+
+4. **辅助功能**
+   - 提示模式开关：切换后道岔高亮功能即时生效
+   - 慢速模式开关：切换后矿车速度立即减半/恢复
+   - 目的地标记开关：切换后矿车角标显示/隐藏
+
+5. **暂停/继续**
+   - 暂停时棋盘出现半透明遮罩和大暂停图标
+   - 矿车停止移动，计时器暂停
+   - 继续后一切恢复正常
+
+6. **重开游戏**
+   - 当前矿车全部清空
+   - 操作日志清空
+   - 分数、时间、配送数归零
+
+7. **通关结算**
+   - 弹窗显示得分、配送数、用时
+   - 新纪录/最快通关出现特殊提示
+   - 自动解锁下一关
+   - 历史最高分和最快时间正确显示
+
+8. **失败提示**
+   - 出现错误时弹窗显示精确原因：
+     - 送错仓库：矿车编号、颜色、目标仓库、实际仓库、位置坐标
+     - 相撞：两辆矿车编号、位置
+     - 出轨：矿车信息、位置
+     - 超时：已配送数量和得分
+   - 棋盘上对应位置格子高亮红色闪烁
+
+9. **操作日志**
+   - 实时滚动显示：矿车生成、送达、道岔切换、暂停/继续、通关/失败
+   - 每条记录带时间戳和图标
+
+10. **移动端适配**
+    - 375px 宽度下所有文字不溢出
+    - 按钮可点击区域足够大（≥44px）
+    - 棋盘保持正方形自适应屏幕宽度
+
+## 🛠️ 技术栈
+
+| 类别 | 技术 | 版本 |
+|-----|------|------|
+| 框架 | React | ^18.3.1 |
+| 语言 | TypeScript | ~5.8.3 |
+| 构建 | Vite | ^6.3.5 |
+| 路由 | react-router-dom | ^7.3.0 |
+| 状态 | Zustand | ^5.0.3 |
+| 动画 | Framer Motion | ^11.3.19 |
+| 图标 | Lucide React | ^0.511.0 |
+| 样式 | Tailwind CSS | ^3.4.17 |
+| 工具 | clsx / tailwind-merge | 最新 |
+| Lint | ESLint 9 + typescript-eslint | 最新 |
+
+## 📝 数据存储
+
+游戏使用浏览器 `localStorage` 自动保存以下数据（无需登录）：
+
+| Key | 说明 |
+|-----|------|
+| `minecart_highscore` | 历史全局最高分 |
+| `minecart_progress` | 每关解锁状态、最高分、最快通关时间 |
+| `minecart_settings` | 辅助设置（提示/慢速/目的地标记开关状态）|
+| `minecart_eventlog` | 最近 100 条操作日志 |
+
+---
+
+祝游戏愉快！有问题随时反馈。🎮

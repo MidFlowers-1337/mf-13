@@ -1,4 +1,4 @@
-import type { Direction, OreColor, Cell, Cart, Level } from '../types/game';
+import type { Direction, OreColor, Cell, Cart } from '../types/game';
 
 export const getNextPosition = (
   x: number,

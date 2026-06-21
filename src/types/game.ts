@@ -4,6 +4,8 @@ export type OreColor = 'red' | 'blue' | 'yellow';
 
 export type CellType = 'track' | 'switch' | 'entrance' | 'warehouse' | 'empty';
 
+export type FailureType = 'wrong_warehouse' | 'collision' | 'derail' | 'timeout';
+
 export interface SwitchConfig {
   direction1: Direction;
   direction2: Direction;
@@ -26,6 +28,7 @@ export interface Cart {
   moving: boolean;
   prevX: number;
   prevY: number;
+  targetWarehouse?: { x: number; y: number; color: OreColor };
 }
 
 export interface Level {
@@ -44,6 +47,49 @@ export interface Level {
 
 export type GameStatus = 'idle' | 'playing' | 'paused' | 'won' | 'lost';
 
+export type EventType =
+  | 'cart_spawn'
+  | 'cart_delivered'
+  | 'switch_toggle'
+  | 'game_start'
+  | 'game_pause'
+  | 'game_resume'
+  | 'game_restart'
+  | 'game_lost'
+  | 'game_won';
+
+export interface GameEvent {
+  id: number;
+  timestamp: number;
+  type: EventType;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface FailureDetails {
+  type: FailureType;
+  message: string;
+  cartId?: number;
+  cartColor?: OreColor;
+  position?: { x: number; y: number };
+  targetWarehouse?: { x: number; y: number; color: OreColor };
+  actualWarehouse?: { x: number; y: number; color: OreColor };
+  otherCartId?: number;
+}
+
+export interface GameSettings {
+  hintMode: boolean;
+  slowMode: boolean;
+  showDestination: boolean;
+}
+
+export interface LevelProgress {
+  unlocked: boolean;
+  bestScore: number;
+  bestTime: number | null;
+  completed: boolean;
+}
+
 export interface GameState {
   currentLevel: number;
   status: GameStatus;
@@ -51,8 +97,15 @@ export interface GameState {
   highScore: number;
   deliveries: number;
   timeRemaining: number;
+  levelStartTime: number | null;
+  elapsedTime: number;
   carts: Cart[];
   grid: Cell[][];
   message: string | null;
   messageType: 'success' | 'error' | 'info' | null;
+  failureDetails: FailureDetails | null;
+  eventLog: GameEvent[];
+  settings: GameSettings;
+  levelProgress: Record<number, LevelProgress>;
+  highlightedSwitches: { x: number; y: number }[];
 }

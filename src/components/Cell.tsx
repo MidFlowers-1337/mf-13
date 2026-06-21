@@ -15,6 +15,12 @@ interface CellProps {
 export const Cell = ({ cell, x, y }: CellProps) => {
   const toggleSwitch = useGameStore(s => s.toggleSwitch);
   const status = useGameStore(s => s.status);
+  const highlightedSwitches = useGameStore(s => s.highlightedSwitches);
+  const failureDetails = useGameStore(s => s.failureDetails);
+
+  const isHighlighted = highlightedSwitches.some(s => s.x === x && s.y === y);
+  const isFailurePosition = failureDetails?.position?.x === x && failureDetails?.position?.y === y;
+  const isFailureWarehouse = failureDetails?.actualWarehouse?.x === x && failureDetails?.actualWarehouse?.y === y;
 
   const handleClick = () => {
     if (cell.type === 'switch' && status === 'playing') {
@@ -40,7 +46,7 @@ export const Cell = ({ cell, x, y }: CellProps) => {
           </div>
         );
 
-      case 'switch':
+      case 'switch': {
         const currentDir = cell.switchConfig
           ? (cell.switchConfig.current === 0
             ? cell.switchConfig.direction1
@@ -69,6 +75,7 @@ export const Cell = ({ cell, x, y }: CellProps) => {
             )}
           </div>
         );
+      }
 
       case 'entrance':
         return (
@@ -110,6 +117,12 @@ export const Cell = ({ cell, x, y }: CellProps) => {
   };
 
   const getCellBg = () => {
+    if (isFailurePosition || isFailureWarehouse) {
+      return 'bg-red-700/60 animate-pulse';
+    }
+    if (isHighlighted) {
+      return 'bg-amber-700/60 hover:bg-amber-600/70';
+    }
     switch (cell.type) {
       case 'empty':
         return 'bg-zinc-900';
@@ -126,19 +139,38 @@ export const Cell = ({ cell, x, y }: CellProps) => {
     }
   };
 
+  const getBorderClass = () => {
+    if (isHighlighted) {
+      return 'border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.6)]';
+    }
+    if (isFailurePosition || isFailureWarehouse) {
+      return 'border-2 border-red-400 shadow-[0_0_15px_rgba(248,113,113,0.6)]';
+    }
+    return 'border border-zinc-700';
+  };
+
   return (
     <motion.div
       className={`
-        relative aspect-square border border-zinc-700
+        relative aspect-square
         ${getCellBg()}
+        ${getBorderClass()}
         ${isClickable ? 'cursor-pointer' : ''}
-        transition-colors duration-150
+        transition-all duration-150
       `}
       onClick={handleClick}
       whileHover={isClickable ? { scale: 1.02 } : {}}
       whileTap={isClickable ? { scale: 0.98 } : {}}
     >
       {getCellContent()}
+      {isHighlighted && cell.type === 'switch' && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute inset-0 rounded-sm pointer-events-none animate-pulse-glow text-amber-400"
+          style={{ color: 'rgb(251 191 36)' }}
+        />
+      )}
     </motion.div>
   );
 };
