@@ -90,6 +90,50 @@ export interface LevelProgress {
   completed: boolean;
 }
 
+export type EditorTool = 'empty' | 'track' | 'switch' | 'entrance' | 'warehouse';
+
+export interface ValidationError {
+  type: 'no_entrance' | 'no_warehouse' | 'missing_colors' | 'disconnected_track' | 'orphan_track' | 'entrance_no_exit' | 'warehouse_no_entry';
+  message: string;
+  position?: { x: number; y: number };
+}
+
+export interface CustomLevelMeta {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: number;
+  updatedAt: number;
+  oreColors: OreColor[];
+  spawnInterval: number;
+  moveInterval: number;
+  targetScore: number;
+  targetDeliveries: number;
+  timeLimit: number;
+}
+
+export interface CustomLevel extends CustomLevelMeta {
+  grid: Cell[][];
+  entrances: { x: number; y: number; direction: Direction }[];
+  warehouses: { x: number; y: number; color: OreColor }[];
+}
+
+export interface TrainingState {
+  isTraining: boolean;
+  history: TrainingSnapshot[];
+  historyIndex: number;
+  customLevelId?: string;
+}
+
+export interface TrainingSnapshot {
+  carts: Cart[];
+  grid: Cell[][];
+  score: number;
+  deliveries: number;
+}
+
+export type PageView = 'home' | 'editor' | 'training' | 'levelSelect';
+
 export interface GameState {
   currentLevel: number;
   status: GameStatus;
@@ -108,4 +152,6 @@ export interface GameState {
   settings: GameSettings;
   levelProgress: Record<number, LevelProgress>;
   highlightedSwitches: { x: number; y: number }[];
+  currentView: PageView;
+  training: TrainingState;
 }

@@ -8,7 +8,10 @@ import type {
   GameEvent,
   GameSettings,
   EventType,
-  OreColor
+  OreColor,
+  PageView,
+  TrainingSnapshot,
+  CustomLevel
 } from '../types/game';
 import { levels } from '../data/levels';
 import { cloneGrid } from '../utils/gameLogic';
@@ -43,6 +46,12 @@ interface GameActions {
   setLevelCompleted: (levelId: number, score: number, time: number) => void;
   setHighlightedSwitches: (switches: { x: number; y: number }[]) => void;
   updateElapsedTime: () => void;
+  setView: (view: PageView) => void;
+  startTraining: (level: CustomLevel | number) => void;
+  trainingStep: () => void;
+  trainingBack: () => void;
+  trainingReset: () => void;
+  setCustomLevelGrid: (grid: Cell[][]) => void;
 }
 
 export type GameStore = GameState & GameActions;
@@ -111,7 +120,13 @@ const getInitialState = (): GameState => {
     eventLog: [],
     settings,
     levelProgress,
-    highlightedSwitches: []
+    highlightedSwitches: [],
+    currentView: 'home',
+    training: {
+      isTraining: false,
+      history: [],
+      historyIndex: -1
+    }
   };
 };
 
@@ -439,6 +454,191 @@ export const gameStore = createStore<GameStore>((set, get) => ({
 
   setHighlightedSwitches: (switches: { x: number; y: number }[]) => {
     set({ highlightedSwitches: switches });
+  },
+
+  setView: (view: PageView) => {
+    set({ currentView: view });
+    if (view !== 'training') {
+      set({
+        training: {
+          isTraining: false,
+          history: [],
+          historyIndex: -1
+        }
+      });
+    }
+  },
+
+  startTraining: (level: CustomLevel | number) => {
+    let levelData: { grid: Cell[][]; timeLimit: number; targetScore: number; targetDeliveries: number };
+
+    if (typeof level === 'number') {
+      const officialLevel = levels.find(l => l.id === level) || levels[0];
+      levelData = {
+        grid: cloneGrid(officialLevel.grid),
+        timeLimit: officialLevel.timeLimit,
+        targetScore: officialLevel.targetScore,
+        targetDeliveries: officialLevel.targetDeliveries
+      };
+    } else {
+      levelData = {
+        grid: cloneGrid(level.grid),
+        timeLimit: level.timeLimit,
+        targetScore: level.targetScore,
+        targetDeliveries: level.targetDeliveries
+      };
+    }
+
+    const initialSnapshot: TrainingSnapshot = {
+      carts: [],
+      grid: cloneGrid(levelData.grid),
+      score: 0,
+      deliveries: 0
+    };
+
+    set({
+      currentView: 'training',
+      status: 'idle',
+      score: 0,
+      deliveries: 0,
+      timeRemaining: levelData.timeLimit,
+      levelStartTime: null,
+      elapsedTime: 0,
+      carts: [],
+      grid: cloneGrid(levelData.grid),
+      message: null,
+      messageType: null,
+      failureDetails: null,
+      eventLog: [],
+      highlightedSwitches: [],
+      training: {
+        isTraining: true,
+        history: [initialSnapshot],
+        historyIndex: 0,
+        customLevelId: typeof level === 'number' ? undefined : level.id
+      }
+    });
+  },
+
+  trainingStep: () => {
+    const state = get();
+    if (!state.training.isTraining) return;
+
+    const { carts, grid } = state;
+    const newCarts: Cart[] = [];
+    let delivered = 0;
+
+    for (const cart of carts) {
+      const cell = grid[cart.y]?.[cart.x];
+      if (!cell) continue;
+
+      let nextDir = cart.direction;
+      if (cell.type === 'switch' && cell.switchConfig) {
+        nextDir = cell.switchConfig.current === 0
+          ? cell.switchConfig.direction1
+          : cell.switchConfig.direction2;
+      }
+
+      let nextX = cart.x;
+      let nextY = cart.y;
+      switch (nextDir) {
+        case 'up': nextY--; break;
+        case 'down': nextY++; break;
+        case 'left': nextX--; break;
+        case 'right': nextX++; break;
+      }
+
+      if (nextX < 0 || nextX >= 6 || nextY < 0 || nextY >= 6) continue;
+      const nextCell = grid[nextY]?.[nextX];
+      if (!nextCell || nextCell.type === 'empty') continue;
+
+      if (nextCell.type === 'warehouse') {
+        if (nextCell.color === cart.color) {
+          delivered++;
+        }
+        continue;
+      }
+
+      newCarts.push({
+        ...cart,
+        prevX: cart.x,
+        prevY: cart.y,
+        x: nextX,
+        y: nextY,
+        direction: nextDir
+      });
+    }
+
+    const newScore = state.score + delivered * 10;
+    const newDeliveries = state.deliveries + delivered;
+
+    const snapshot: TrainingSnapshot = {
+      carts: newCarts.map(c => ({ ...c })),
+      grid: cloneGrid(grid),
+      score: newScore,
+      deliveries: newDeliveries
+    };
+
+    const newHistory = state.training.history.slice(0, state.training.historyIndex + 1);
+    newHistory.push(snapshot);
+
+    set({
+      carts: newCarts,
+      score: newScore,
+      deliveries: newDeliveries,
+      training: {
+        ...state.training,
+        history: newHistory,
+        historyIndex: newHistory.length - 1
+      }
+    });
+  },
+
+  trainingBack: () => {
+    const state = get();
+    if (!state.training.isTraining) return;
+    if (state.training.historyIndex <= 0) return;
+
+    const newIndex = state.training.historyIndex - 1;
+    const snapshot = state.training.history[newIndex];
+
+    set({
+      carts: snapshot.carts.map(c => ({ ...c })),
+      grid: cloneGrid(snapshot.grid),
+      score: snapshot.score,
+      deliveries: snapshot.deliveries,
+      failureDetails: null,
+      training: {
+        ...state.training,
+        historyIndex: newIndex
+      }
+    });
+  },
+
+  trainingReset: () => {
+    const state = get();
+    if (!state.training.isTraining) return;
+    if (state.training.history.length === 0) return;
+
+    const snapshot = state.training.history[0];
+
+    set({
+      carts: [],
+      grid: cloneGrid(snapshot.grid),
+      score: 0,
+      deliveries: 0,
+      failureDetails: null,
+      status: 'idle',
+      training: {
+        ...state.training,
+        history: [snapshot],
+        historyIndex: 0
+      }
+    });
+  },
+
+  setCustomLevelGrid: (grid: Cell[][]) => {
+    set({ grid: cloneGrid(grid) });
   }
 }));
 

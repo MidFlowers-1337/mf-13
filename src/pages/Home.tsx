@@ -7,19 +7,25 @@ import { StatusModal } from '../components/StatusModal';
 import { EventLogPanel } from '../components/EventLogPanel';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { useGameStore } from '../store/gameStore';
-import { Train } from 'lucide-react';
+import { Train, Edit3, BookOpen } from 'lucide-react';
 
 export default function Home() {
   useGameEngine();
   const loadHighScore = useGameStore(s => s.loadHighScore);
   const loadLevelProgress = useGameStore(s => s.loadLevelProgress);
   const loadSettings = useGameStore(s => s.loadSettings);
+  const setView = useGameStore(s => s.setView);
+  const startTraining = useGameStore(s => s.startTraining);
 
   useEffect(() => {
     loadHighScore();
     loadLevelProgress();
     loadSettings();
   }, [loadHighScore, loadLevelProgress, loadSettings]);
+
+  const handleTrainingMode = () => {
+    startTraining(1);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 py-4 px-3 md:py-6 md:px-4">
@@ -40,6 +46,27 @@ export default function Home() {
             点击道岔切换方向，引导矿车将矿石送到对应颜色的仓库
           </p>
         </motion.div>
+
+        <div className="flex gap-2 mb-4">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleTrainingMode}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-sm font-medium"
+          >
+            <BookOpen size={16} />
+            <span>训练模式</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setView('editor')}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-purple-700 hover:bg-purple-600 text-white rounded-lg text-sm font-medium"
+          >
+            <Edit3 size={16} />
+            <span>关卡编辑</span>
+          </motion.button>
+        </div>
 
         <InfoPanel />
         <GameBoard />
