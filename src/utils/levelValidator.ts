@@ -3,15 +3,6 @@ import { getNextPosition, isInBounds, getCell } from './gameLogic';
 
 const GRID_SIZE = 6;
 
-const oppositeDirection = (dir: Direction): Direction => {
-  switch (dir) {
-    case 'up': return 'down';
-    case 'down': return 'up';
-    case 'left': return 'right';
-    case 'right': return 'left';
-  }
-};
-
 const hasPathFromEntrance = (
   grid: Cell[][],
   startX: number,
@@ -21,12 +12,12 @@ const hasPathFromEntrance = (
 ): boolean => {
   let x = startX;
   let y = startY;
-  let dir = direction;
+  const dir = direction;
   const localVisited = new Set<string>();
 
   for (let steps = 0; steps < 100; steps++) {
     const key = `${x},${y},${dir}`;
-    if (localVisited.has(key)) return true;
+    if (localVisited.has(key)) return false;
     localVisited.add(key);
     visited.add(`${x},${y}`);
 
@@ -43,20 +34,33 @@ const hasPathFromEntrance = (
 
     if (nextCell.type === 'entrance') {
       visited.add(`${nextPos.x},${nextPos.y}`);
-      return true;
+      return false;
     }
 
     if (nextCell.type === 'switch' && nextCell.switchConfig) {
       const switchDir1 = nextCell.switchConfig.direction1;
       const switchDir2 = nextCell.switchConfig.direction2;
-      const enterDir = oppositeDirection(dir);
+      
+      const canReachFromDir = (exitDir: Direction): boolean => {
+        const newVisited = new Set(visited);
+        const result = hasPathFromEntrance(
+          grid,
+          nextPos.x,
+          nextPos.y,
+          exitDir,
+          newVisited
+        );
+        if (result) {
+          newVisited.forEach(v => visited.add(v));
+        }
+        return result;
+      };
 
-      if (switchDir1 === enterDir || switchDir2 === enterDir) {
-        const exitDir = switchDir1 === enterDir ? switchDir2 : switchDir1;
-        x = nextPos.x;
-        y = nextPos.y;
-        dir = exitDir;
-        continue;
+      if (canReachFromDir(switchDir1)) {
+        return true;
+      }
+      if (canReachFromDir(switchDir2)) {
+        return true;
       }
       return false;
     }
@@ -65,10 +69,10 @@ const hasPathFromEntrance = (
     y = nextPos.y;
   }
 
-  return true;
+  return false;
 };
 
-export const validateLevel = (grid: Cell[][]): ValidationError[] => {
+export const validateLevel = (grid: Cell[][], oreColors?: OreColor[]): ValidationError[] => {
   const errors: ValidationError[] = [];
   const entrances: { x: number; y: number; direction: Direction }[] = [];
   const warehouses: { x: number; y: number; color: OreColor }[] = [];
@@ -103,15 +107,34 @@ export const validateLevel = (grid: Cell[][]): ValidationError[] => {
     });
   }
 
-  const colors = new Set(warehouses.map(w => w.color));
-  if (warehouses.length > 0 && colors.size < warehouses.length) {
+  const warehouseColors = new Set(warehouses.map(w => w.color));
+  if (warehouses.length > 0 && warehouseColors.size < warehouses.length) {
     errors.push({
       type: 'missing_colors',
       message: '每个仓库颜色都应该是唯一的，避免重复颜色'
     });
   }
 
+  if (oreColors && oreColors.length > 0 && warehouses.length > 0) {
+    const missingColors: OreColor[] = [];
+    for (const color of oreColors) {
+      if (!warehouseColors.has(color)) {
+        missingColors.push(color);
+      }
+    }
+    if (missingColors.length > 0) {
+      const colorNames = missingColors.map(c => 
+        c === 'red' ? '红色' : c === 'blue' ? '蓝色' : '黄色'
+      ).join('、');
+      errors.push({
+        type: 'missing_colors',
+        message: `矿车颜色包含 ${colorNames}，但缺少对应颜色的仓库`
+      });
+    }
+  }
+
   const reachableCells = new Set<string>();
+  const reachableWarehouseColors = new Set<OreColor>();
 
   for (const entrance of entrances) {
     const visited = new Set<string>();
@@ -131,7 +154,14 @@ export const validateLevel = (grid: Cell[][]): ValidationError[] => {
       });
     }
 
-    visited.forEach(v => reachableCells.add(v));
+    visited.forEach(v => {
+      reachableCells.add(v);
+      const [vx, vy] = v.split(',').map(Number);
+      const cell = grid[vy]?.[vx];
+      if (cell?.type === 'warehouse' && cell.color) {
+        reachableWarehouseColors.add(cell.color);
+      }
+    });
   }
 
   for (const cell of allTrackCells) {

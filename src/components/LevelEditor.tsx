@@ -65,9 +65,9 @@ export const LevelEditor = ({ initialLevelId }: LevelEditorProps) => {
   }, []);
 
   useEffect(() => {
-    const errors = validateLevel(grid);
+    const errors = validateLevel(grid, level.oreColors);
     setValidationErrors(errors);
-  }, [grid]);
+  }, [grid, level.oreColors]);
 
   const handleCellClick = (x: number, y: number) => {
     const newGrid = grid.map(row => row.map(cell => ({ ...cell })));
@@ -240,7 +240,10 @@ export const LevelEditor = ({ initialLevelId }: LevelEditorProps) => {
       setShowImport(false);
       setImportText('');
     } else {
-      setImportError(result.error || '导入失败');
+      const errorMsg = result.errorDetails 
+        ? `${result.error}：${result.errorDetails}` 
+        : result.error || '导入失败';
+      setImportError(errorMsg);
     }
   };
 

@@ -123,6 +123,7 @@ export interface TrainingState {
   history: TrainingSnapshot[];
   historyIndex: number;
   customLevelId?: string;
+  oreColors: OreColor[];
 }
 
 export interface TrainingSnapshot {

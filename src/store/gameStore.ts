@@ -125,7 +125,8 @@ const getInitialState = (): GameState => {
     training: {
       isTraining: false,
       history: [],
-      historyIndex: -1
+      historyIndex: -1,
+      oreColors: ['red', 'blue', 'yellow']
     }
   };
 };
@@ -463,14 +464,15 @@ export const gameStore = createStore<GameStore>((set, get) => ({
         training: {
           isTraining: false,
           history: [],
-          historyIndex: -1
+          historyIndex: -1,
+          oreColors: ['red', 'blue', 'yellow']
         }
       });
     }
   },
 
   startTraining: (level: CustomLevel | number) => {
-    let levelData: { grid: Cell[][]; timeLimit: number; targetScore: number; targetDeliveries: number };
+    let levelData: { grid: Cell[][]; timeLimit: number; targetScore: number; targetDeliveries: number; oreColors: OreColor[] };
 
     if (typeof level === 'number') {
       const officialLevel = levels.find(l => l.id === level) || levels[0];
@@ -478,14 +480,16 @@ export const gameStore = createStore<GameStore>((set, get) => ({
         grid: cloneGrid(officialLevel.grid),
         timeLimit: officialLevel.timeLimit,
         targetScore: officialLevel.targetScore,
-        targetDeliveries: officialLevel.targetDeliveries
+        targetDeliveries: officialLevel.targetDeliveries,
+        oreColors: ['red', 'blue', 'yellow']
       };
     } else {
       levelData = {
         grid: cloneGrid(level.grid),
         timeLimit: level.timeLimit,
         targetScore: level.targetScore,
-        targetDeliveries: level.targetDeliveries
+        targetDeliveries: level.targetDeliveries,
+        oreColors: level.oreColors && level.oreColors.length > 0 ? level.oreColors : ['red', 'blue', 'yellow']
       };
     }
 
@@ -515,7 +519,8 @@ export const gameStore = createStore<GameStore>((set, get) => ({
         isTraining: true,
         history: [initialSnapshot],
         historyIndex: 0,
-        customLevelId: typeof level === 'number' ? undefined : level.id
+        customLevelId: typeof level === 'number' ? undefined : level.id,
+        oreColors: levelData.oreColors
       }
     });
   },

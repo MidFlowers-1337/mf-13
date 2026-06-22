@@ -14,7 +14,7 @@ import {
 import { useGameStore, gameStore } from '../store/gameStore';
 import { levels } from '../data/levels';
 import { loadCustomLevels } from '../data/customLevels';
-import type { CustomLevel, Cart, OreColor, Direction } from '../types/game';
+import type { CustomLevel, Cart, Direction } from '../types/game';
 import { getDirectionArrow, getColorClass, getColorBorderClass } from '../utils/gameLogic';
 
 let cartIdCounter = 1000;
@@ -31,6 +31,7 @@ export const TrainingMode = () => {
   const trainingBack = useGameStore(s => s.trainingBack);
   const trainingReset = useGameStore(s => s.trainingReset);
   const startTraining = useGameStore(s => s.startTraining);
+  const oreColors = training.oreColors.length > 0 ? training.oreColors : ['red', 'blue', 'yellow'] as const;
 
   const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [customLevels, setCustomLevels] = useState<CustomLevel[]>([]);
@@ -74,8 +75,7 @@ export const TrainingMode = () => {
     if (allEntrances.length === 0) return;
 
     const entrance = allEntrances[Math.floor(Math.random() * allEntrances.length)];
-    const colors: OreColor[] = ['red', 'blue', 'yellow'];
-    const color = colors[Math.floor(Math.random() * colors.length)];
+    const color = oreColors[Math.floor(Math.random() * oreColors.length)];
 
     const newCart: Cart = {
       id: ++cartIdCounter,
